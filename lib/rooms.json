@@ -1,0 +1,122 @@
+[
+	{
+		"name": "Room 55cc5905",
+		"occupants": [
+			"178293a5-8d2b-47ed-b0f8-b7a91d3baa7b",
+			"2c423f70-bce2-4b16-897e-965a64794d2a",
+			"3c4e1251-faa1-48e9-a52d-029c2993fee6",
+			"d9845064-3f15-4801-912d-a5a874549e2e"
+		]
+	},
+	{
+		"name": "Room 3ca49478",
+		"occupants": [
+			"454f19aa-c7a1-4a5a-8165-8ecbb8edca2a",
+			"aeb11f24-6f25-4493-998e-df1785a107f1",
+			"a80dd9b7-b624-4c3a-a849-cb0cbc58160f"
+		]
+	},
+	{
+		"name": "Room 201f4bf7",
+		"occupants": [
+			"972c5eaf-ba9a-4c1c-abe6-0bf966fbcf66",
+			"374a713e-06fe-4906-9176-7abfb37305c1",
+			"eab26f79-b3d7-4386-85fc-74c12132389a",
+			"db17964d-4842-45e3-8345-4afd89e252e1"
+		]
+	},
+	{
+		"name": "Room d9cb3f5a",
+		"occupants": [
+			"d35d81e0-531e-42b2-abd2-fd978540bdf5",
+			"9b19bdd7-f1b9-4f3b-af9d-513de432ac1c",
+			"daa9ea81-4e7a-4973-8b25-5f46a2ab42c6",
+			"265191aa-881c-404a-90d8-b2334a16f41f"
+		]
+	},
+	{
+		"name": "Room fd653a62",
+		"occupants": [
+			"a71b0b7c-2df4-43bb-be29-28f34aa96b23",
+			"49c7d977-d767-4499-aadc-20cf8067b7d5",
+			"cbf249a3-95fa-4f8a-9f4c-d9b913f67bac",
+			"18496326-6f8b-423c-af5c-b2c752fd05be"
+		]
+	},
+	{
+		"name": "Room cb04508d",
+		"occupants": [
+			"7c66c8e8-44f5-4780-a956-f6eef7fcd5b8",
+			"b70813f5-f4fc-47d2-8c47-2b21ead518d8",
+			"62cd6a86-6e7f-4888-9db2-11c7919b5f85",
+			"e59a6129-c9b9-4a49-9337-bf2751fbd1bd"
+		]
+	},
+	{
+		"name": "Room 3d780b77",
+		"occupants": [
+			"aceb32bd-f658-4d21-8292-64a5c6a82d05",
+			"8b75fa79-32d2-4650-ae5f-2ba2fc57577d",
+			"9c99fe5b-60bf-402f-8f68-1826469a7995",
+			"5f8ba9a7-18c4-4064-863b-3072eaea1c1c"
+		]
+	},
+	{
+		"name": "Room 4ad6d4c5",
+		"occupants": [
+			"f4ada307-4205-48cc-98ce-376a603ca206",
+			"15da5020-ac20-45c6-a2d0-98fcec05b84f",
+			"99c77a0a-69c7-4070-b289-31e87a44bdca",
+			"d76f93c8-3044-4bf1-8a78-4e35f75a0cd1"
+		]
+	},
+	{
+		"name": "Room bb0e8649",
+		"occupants": [
+			"3162ca0c-6a94-4f99-98b4-91bd78e06d0f",
+			"76a94e4b-26b4-4a14-a088-d468506adbd2",
+			"bf508f15-ab99-475e-8945-ede0d4dae6e9",
+			"95db944e-cf6b-4450-a715-1f26a0f15872"
+		]
+	},
+	{
+		"name": "Room 0741dc22",
+		"occupants": [
+			"c9636212-9eb1-4096-a850-595b5910ff27",
+			"19836a90-9378-4550-bdca-f390549884a1",
+			"fcc8ea1a-5558-4806-b756-df657910f268",
+			"81cb2451-ee44-425e-8711-9f38a727d229"
+		]
+	},
+	{
+		"name": "Room 59ed0cb4",
+		"occupants": [
+			"70835ef7-bea9-48da-b600-c77c6c26c810",
+			"6cf9579a-a7d9-4eca-9b8d-32257f0b3546",
+			"67aafdc7-3354-476d-acbb-5f1aa992d272",
+			"22520b5c-bf04-40f0-ba70-880564636e83"
+		]
+	},
+	{
+		"name": "Room fa102aee",
+		"occupants": [
+			"a228750a-9abe-4102-b6fd-225d2ac9cd4c",
+			"1772a2a5-4f1a-436e-9496-65e532e2b856",
+			"306c19cb-7e4f-4cdb-857f-46e181776b55",
+			"cb74386b-b4ff-43e4-aa3f-5747065760a0"
+		]
+	},
+	{
+		"name": "Room fb9c8fe6",
+		"occupants": [
+			"9cf76e43-f61f-4ee5-af3c-fceb46c6f97c"
+		]
+	},
+	{
+		"name": "Room c8def250",
+		"occupants": [
+			"3652ddeb-118b-4349-8997-cd3c5b0d6a39",
+			"c04e10c3-580c-41ee-9497-287b45b24544"
+		]
+	}
+]

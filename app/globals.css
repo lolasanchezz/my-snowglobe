@@ -1,0 +1,134 @@
+@import "tailwindcss";
+
+:root {
+	--background: #ffffff;
+	--foreground: #000000;
+}
+
+@theme inline {
+	--color-background: var(--background);
+	--color-foreground: var(--foreground);
+	--font-serif: var(--font-libre-baskerville);
+
+	/* exact colors from the Figma file */
+	--color-globe-blue: #163aa5;
+	/* muted text */
+	--color-faded: #999999;
+	/* the snowglobe site's palette, for hover/focus accents */
+	--color-royal: #1155cd;
+	--color-deep-ink: #0d1f44;
+}
+
+/* Keyboard focus always shows (same rule as snowglobe). */
+:focus-visible {
+	outline: 2px solid var(--color-royal);
+	outline-offset: 2px;
+}
+
+.focus-light :focus-visible,
+.focus-light:focus-visible {
+	outline-color: #ffffff;
+}
+
+/* Plaid texture laid over white at 57% opacity, as in the Figma frames.
+   Used full-bleed on the sign-in screen and as the strip behind the tabs. */
+.plaid {
+	position: relative;
+	isolation: isolate;
+	background-color: #ffffff;
+}
+
+.plaid::before {
+	content: "";
+	position: absolute;
+	inset: 0;
+	z-index: -1;
+	background-image: url("/imgs/plaid-texture.png");
+	background-size: 640px auto;
+	background-repeat: repeat;
+	background-position: center top;
+	opacity: 0.57;
+	pointer-events: none;
+}
+
+/* The tiled snowflake wallpaper behind the signed-in screens. */
+.snowflake-wallpaper {
+	background-color: #ffffff;
+	background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='46' height='52' viewBox='0 0 46 52'%3E%3Cdefs%3E%3Cg id='a'%3E%3Cpath d='M0 0V-13M0-7.5L-4.5-11.5M0-7.5L4.5-11.5'/%3E%3C/g%3E%3Cg id='f' fill='none' stroke='%23dde6fa' stroke-width='3' stroke-linecap='round'%3E%3Cuse href='%23a'/%3E%3Cuse href='%23a' transform='rotate(60)'/%3E%3Cuse href='%23a' transform='rotate(120)'/%3E%3Cuse href='%23a' transform='rotate(180)'/%3E%3Cuse href='%23a' transform='rotate(240)'/%3E%3Cuse href='%23a' transform='rotate(300)'/%3E%3C/g%3E%3C/defs%3E%3Cuse href='%23f' x='11.5' y='13'/%3E%3Cuse href='%23f' x='34.5' y='39'/%3E%3C/svg%3E");
+	background-size: 46px 52px;
+}
+
+/* Falling snow on the sign-in screen, borrowed from snowglobe's hero. */
+@keyframes snowfall {
+	0% {
+		transform: translate3d(0, -10vh, 0) rotate(0deg);
+		opacity: 0;
+	}
+	12% {
+		opacity: var(--snow-opacity);
+	}
+	80% {
+		opacity: var(--snow-opacity);
+	}
+	100% {
+		transform: translate3d(var(--snow-drift), 105vh, 0) rotate(220deg);
+		opacity: 0;
+	}
+}
+
+.snowflake {
+	position: absolute;
+	top: 0;
+	animation: snowfall var(--snow-duration) linear var(--snow-delay) infinite;
+	will-change: transform, opacity;
+}
+
+/* The globe bobs gently, like it's just been set down. */
+@keyframes globe-float {
+	0%,
+	100% {
+		transform: translateY(0) rotate(-1deg);
+	}
+	50% {
+		transform: translateY(-8px) rotate(1deg);
+	}
+}
+
+.globe-float {
+	animation: globe-float 6s ease-in-out infinite;
+}
+
+@keyframes screen-in {
+	from {
+		opacity: 0;
+		transform: translateY(16px);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
+
+.screen-enter {
+	animation: screen-in 1.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.snowflake {
+		animation: none;
+		opacity: 0;
+	}
+	.globe-float,
+	.screen-enter {
+		animation: none;
+	}
+}
+
+/* The white halo around the title on the sign-in screen, so it reads over
+   the plaid. */
+.text-halo {
+	text-shadow:
+		-2px -2px 0 #fff, 0 -2px 0 #fff, 2px -2px 0 #fff, 2px 0 0 #fff,
+		2px 2px 0 #fff, 0 2px 0 #fff, -2px 2px 0 #fff, -2px 0 0 #fff,
+		0 0 6px #fff;
+}
