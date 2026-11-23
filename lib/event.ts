@@ -17,7 +17,8 @@ export function submissionsOpen(now = new Date()): boolean {
 /**
  * When the final round opens (pick one favorite from the top 5). Set
  * FINALS_OPEN_AT to an ISO timestamp: at that moment ranked voting closes, so
- * the top 5 stops changing, and the final vote opens. Unset, both stay open.
+ * the top 5 stops changing, and the final vote opens. Unset, the final vote
+ * stays closed and ranked voting stays open.
  */
 export function finalsOpenAt(): Date | null {
 	const value = process.env.FINALS_OPEN_AT;
@@ -27,7 +28,7 @@ export function finalsOpenAt(): Date | null {
 
 export function finalsOpen(now = new Date()): boolean {
 	const at = finalsOpenAt();
-	return !at || now >= at;
+	return !!at && now >= at;
 }
 
 export function rankedVotingOpen(now = new Date()): boolean {
