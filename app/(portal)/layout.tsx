@@ -17,6 +17,7 @@ export default async function PortalLayout({ children }: { children: React.React
 		email: attendee?.email ?? session.email,
 		admin: !!session.admin,
 		attendee: !!attendee,
+		guest: !!session.guest,
 	};
 
 	return (

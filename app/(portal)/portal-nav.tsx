@@ -5,6 +5,9 @@ import { usePathname } from "next/navigation";
 import { NAV_LINKS } from "@/lib/links";
 import ProfileMenu, { type Profile } from "./profile-menu";
 
+// Guests (no Hack Club auth) can only vote.
+const GUEST_PATHS: string[] = ["/vote", "/final"];
+
 const tabClass =
 	"inline-flex h-6 items-center whitespace-nowrap bg-globe-blue px-2.5 text-[15px] leading-none text-white transition-colors hover:bg-deep-ink";
 
@@ -16,7 +19,7 @@ export default function PortalNav({ profile }: { profile: Profile }) {
 			{/* Spacer the same width as the profile chip keeps the tabs centred. */}
 			<div aria-hidden className="hidden w-24 shrink-0 lg:block" />
 			<ul className="mx-auto flex max-w-[49rem] min-w-0 flex-1 flex-wrap items-center gap-x-5 gap-y-1.5 sm:px-6">
-				{NAV_LINKS.map(({ label, href }) => {
+				{NAV_LINKS.filter(({ href }) => !profile.guest || GUEST_PATHS.includes(href)).map(({ label, href }) => {
 					const internal = href.startsWith("/");
 					const current = internal && pathname.startsWith(href);
 					return (

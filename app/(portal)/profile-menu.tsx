@@ -9,6 +9,7 @@ export interface Profile {
 	email?: string;
 	admin: boolean;
 	attendee: boolean;
+	guest?: boolean;
 }
 
 function initials(name: string) {
@@ -75,6 +76,7 @@ export default function ProfileMenu({ profile }: { profile: Profile }) {
 				<p className="mt-2 flex flex-wrap gap-1 text-[12px]">
 					{profile.attendee && <span className="bg-globe-blue px-1.5 text-white">attendee</span>}
 					{profile.admin && <span className="bg-deep-ink px-1.5 text-white">admin</span>}
+					{profile.guest && <span className="bg-faded px-1.5 text-white">guest</span>}
 				</p>
 				<ul className="mt-3 flex flex-col gap-1 border-t border-globe-blue/30 pt-2">
 					{profile.attendee && (

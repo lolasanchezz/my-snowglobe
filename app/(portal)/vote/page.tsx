@@ -3,19 +3,19 @@ import Link from "next/link";
 import { rankedVotingOpen } from "@/lib/event";
 import { isAdminEmail } from "@/lib/admins";
 import { listProjects, RANKED_PICKS, rankedResults, rankedVotesBy } from "@/lib/projects";
-import { getSession } from "@/lib/session";
+import { getSession, voterKey } from "@/lib/session";
 import RankForm from "./rank-form";
 
 export const metadata: Metadata = { title: "vote - the snowglobe" };
 
 export default async function RankPage() {
 	const session = await getSession();
-	if (!session?.email) {
+	const email = session && voterKey(session);
+	if (!session || !email) {
 		return <p className="text-[16px]">we can&apos;t find your email. sign out and back in to vote.</p>;
 	}
-	const email = session.email.toLowerCase();
 	// Running totals are for organizers only, so they don't sway anyone's vote.
-	const admin = !!session.admin || (await isAdminEmail(email));
+	const admin = !session.guest && (!!session.admin || (await isAdminEmail(email)));
 
 	const data = await Promise.all([
 		listProjects(),

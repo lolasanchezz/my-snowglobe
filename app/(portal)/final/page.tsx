@@ -2,18 +2,18 @@ import type { Metadata } from "next";
 import { isAdminEmail } from "@/lib/admins";
 import { finalsOpen, finalsOpenAt, formatPacific } from "@/lib/event";
 import { FINALISTS, finalists, finalResults, finalVoteBy } from "@/lib/projects";
-import { getSession } from "@/lib/session";
+import { getSession, voterKey } from "@/lib/session";
 import FinalForm from "./final-form";
 
 export const metadata: Metadata = { title: "final vote - the snowglobe" };
 
 export default async function FinalPage() {
 	const session = await getSession();
-	if (!session?.email) {
+	const email = session && voterKey(session);
+	if (!session || !email) {
 		return <p className="text-[16px]">we can&apos;t find your email. sign out and back in to vote.</p>;
 	}
-	const email = session.email.toLowerCase();
-	const admin = !!session.admin || (await isAdminEmail(email));
+	const admin = !session.guest && (!!session.admin || (await isAdminEmail(email)));
 	const open = finalsOpen();
 	const openAt = finalsOpenAt();
 

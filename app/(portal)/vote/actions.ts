@@ -3,7 +3,7 @@
 import { refresh } from "next/cache";
 import { rankedVotingOpen } from "@/lib/event";
 import { castRankedVotes, listProjects, RANKED_PICKS, rankedVotesBy } from "@/lib/projects";
-import { getSession } from "@/lib/session";
+import { getSession, voterKey } from "@/lib/session";
 
 export interface RankState {
 	ok?: boolean;
@@ -12,8 +12,8 @@ export interface RankState {
 
 export async function rankVote(_prev: RankState, form: FormData): Promise<RankState> {
 	const session = await getSession();
-	if (!session?.email) return { error: "you need to be signed in to vote." };
-	const email = session.email.toLowerCase();
+	const email = session && voterKey(session);
+	if (!session || !email) return { error: "you need to be signed in to vote." };
 	if (!rankedVotingOpen()) return { error: "ranked voting is closed. head to the final vote!" };
 
 	// Form order is rank order (#1 first).
@@ -22,7 +22,7 @@ export async function rankVote(_prev: RankState, form: FormData): Promise<RankSt
 
 	try {
 		// Picks are final: once saved, they can't be changed.
-		if ((await rankedVotesBy(session.email!)).recordIds.length > 0)
+		if ((await rankedVotesBy(email)).recordIds.length > 0)
 			return { error: "you've already submitted your picks. they're locked in." };
 		// No voting for your own project.
 		const all = (await listProjects()).filter((p) => !p.teamEmails.includes(email));
@@ -35,7 +35,7 @@ export async function rankVote(_prev: RankState, form: FormData): Promise<RankSt
 			if (!project) return { error: "one of those projects isn't available (or it's yours). reload and try again." };
 			ranked.push({ id, name: project.name });
 		}
-		await castRankedVotes({ email: session.email!, name: session.name }, ranked);
+		await castRankedVotes({ email, name: session.name, guest: !!session.guest }, ranked);
 	} catch (err) {
 		console.error("ranked voting failed", err);
 		return { error: "couldn't save your picks, sorry! try again, or ping an organizer." };

@@ -1,4 +1,5 @@
 import Image from "next/image";
+import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getSession } from "@/lib/session";
 import { isAllowed } from "@/lib/attendees";
@@ -13,7 +14,7 @@ const ERRORS: Record<string, string> = {
 
 export default async function SignIn({ searchParams }: { searchParams: Promise<{ error?: string | string[] }> }) {
 	const session = await getSession();
-	if (session && isAllowed(session)) redirect("/info");
+	if (session && isAllowed(session)) redirect(session.guest ? "/vote" : "/info");
 	const { error } = await searchParams;
 	const message = typeof error === "string" ? ERRORS[error] : undefined;
 
@@ -36,6 +37,9 @@ export default async function SignIn({ searchParams }: { searchParams: Promise<{
 				>
 					[ sign in w/ Hack Club auth ]
 				</a>
+				<Link href="/guest" className="text-halo mt-1 text-[13px] underline-offset-4 hover:underline sm:text-[14px]">
+					no account? vote as a guest
+				</Link>
 				{message && (
 					<p role="alert" className="text-halo mt-3 max-w-xs text-[13px] sm:max-w-sm">
 						{message}

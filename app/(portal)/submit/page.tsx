@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { redirect } from "next/navigation";
 import { allAttendees, currentAttendee } from "@/lib/attendees";
 import { formatPacific, submissionsCloseAt, submissionsOpen } from "@/lib/event";
 import { findProjectFor } from "@/lib/projects";
@@ -9,8 +10,9 @@ import SubmitForm from "./submit-form";
 export const metadata: Metadata = { title: "submit - the snowglobe" };
 
 export default async function SubmitPage() {
-	await requireReadShipping();
 	const session = await getSession();
+	if (session?.guest) redirect("/vote");
+	await requireReadShipping();
 	const me = session && currentAttendee(session);
 	if (!me) {
 		return (

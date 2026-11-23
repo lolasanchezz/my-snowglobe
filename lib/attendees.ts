@@ -25,6 +25,8 @@ export function isAllowed(session: Session): boolean {
 	// configured; once CLIENT_ID is set, everyone signs in for real.
 	if (session.id === "dev") return devLoginEnabled();
 	if (session.admin) return true;
+	// Guests only get the voting pages (see the portal layout and pages).
+	if (session.guest) return true;
 	return findAttendee(session.email) !== undefined;
 }
 

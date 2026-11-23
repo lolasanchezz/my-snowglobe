@@ -105,16 +105,38 @@ function projectKey(p: Project): string {
 	return url || `record:${p.id}`;
 }
 
+/** Name for matching teammates' submissions: case, punctuation and spacing ignored. */
+const nameKey = (name: string) => name.toLowerCase().replace(/[^a-z0-9]/g, "");
+
+/** Teammates who typed in different code links but the same project name. */
+function sameTeamProject(a: Project, b: Project): boolean {
+	if (!nameKey(a.name) || nameKey(a.name) !== nameKey(b.name)) return false;
+	return (!!a.submittedBy && b.teamEmails.includes(a.submittedBy)) || (!!b.submittedBy && a.teamEmails.includes(b.submittedBy));
+}
+
 /**
- * Projects for voting: submissions with the same code link are merged, keeping
- * the earliest one's details and id, with everyone involved on the team.
+ * Projects for voting: teammates' submissions are merged (same code link, or
+ * same name with one submitter on the other's team), keeping the earliest
+ * one's details and id, with everyone involved on the team.
  */
 export async function listProjects(): Promise<Project[]> {
-	const groups = new Map<string, Project[]>();
-	for (const sub of await listSubmissions()) {
+	const subs = await listSubmissions();
+	// Union-find over submissions.
+	const parent = subs.map((_, i) => i);
+	const find = (i: number): number => (parent[i] === i ? i : (parent[i] = find(parent[i]!)));
+	const join = (a: number, b: number) => {
+		parent[find(a)] = find(b);
+	};
+	const byCode = new Map<string, number>();
+	subs.forEach((sub, i) => {
 		const key = projectKey(sub);
-		groups.set(key, [...(groups.get(key) ?? []), sub]);
-	}
+		const seen = byCode.get(key);
+		if (seen === undefined) byCode.set(key, i);
+		else join(i, seen);
+		for (let j = 0; j < i; j++) if (sameTeamProject(sub, subs[j]!)) join(i, j);
+	});
+	const groups = new Map<number, Project[]>();
+	subs.forEach((sub, i) => groups.set(find(i), [...(groups.get(find(i)) ?? []), sub]));
 	return [...groups.values()]
 		.map((subs) => {
 			subs.sort((a, b) => a.createdTime.localeCompare(b.createdTime));
@@ -182,6 +204,51 @@ interface VoteFields {
 	"Voted At"?: string;
 	/** "final" for a final-round vote; empty for ranked picks. */
 	Round?: string;
+	/** Guest vote: name typed in, not verified with Hack Club auth. */
+	Guest?: boolean;
+}
+
+interface Voter {
+	/** Lowercased email, or "guest:<id>" for guests (see voterKey). */
+	email: string;
+	name: string;
+	guest?: boolean;
+}
+
+/** Shared "who voted" columns. Guests get a Guest tick and "(guest)" after their name. */
+function voterFields(voter: Voter): VoteFields {
+	if (voter.guest) {
+		return { "Voter Email": voter.email, "Voter Name": `${voter.name} (guest)`, Guest: true, "Voted At": new Date().toISOString() };
+	}
+	return {
+		"Voter Email": voter.email.toLowerCase(),
+		"Voter Name": voter.name,
+		Voter: userIds([voter.email]),
+		"Voted At": new Date().toISOString(),
+	};
+}
+
+// Columns added after launch. If one doesn't exist in Airtable yet, save the
+// rest rather than losing the vote (Points is derived from Rank; guests still
+// show up via the "(guest)" name and "guest:" email).
+const OPTIONAL_VOTE_FIELDS = ["Points", "Guest"] as const;
+
+async function createVotes(rows: VoteFields[]): Promise<void> {
+	try {
+		await createRecords<VoteFields>(TABLES.votes, rows);
+	} catch (err) {
+		const missing = OPTIONAL_VOTE_FIELDS.filter((f) => String(err).includes("UNKNOWN_FIELD_NAME") && String(err).includes(f));
+		if (missing.length === 0) throw err;
+		console.error(`Airtable votes table is missing ${missing.join(", ")}; saving without`);
+		await createRecords<VoteFields>(
+			TABLES.votes,
+			rows.map((row) => {
+				const rest = { ...row };
+				for (const f of OPTIONAL_VOTE_FIELDS) delete rest[f];
+				return rest;
+			}),
+		);
+	}
 }
 
 export const RANKED_PICKS = 5;
@@ -205,34 +272,16 @@ export async function rankedVotesBy(email: string): Promise<{ recordIds: string[
 }
 
 /** Save this person's ranked picks (final: they can't be changed). `projects` is in rank order. */
-export async function castRankedVotes(
-	voter: { email: string; name: string },
-	projects: { id: string; name: string }[],
-): Promise<void> {
-	const now = new Date().toISOString();
-	const rows: VoteFields[] = projects.map((p, i) => ({
-		Rank: i + 1,
-		Points: pointsForRank(i + 1),
-		Project: [p.id],
-		"Voter Email": voter.email.toLowerCase(),
-		"Voter Name": voter.name,
-		Voter: userIds([voter.email]),
-		"Voted At": now,
-	}));
-	try {
-		await createRecords<VoteFields>(TABLES.votes, rows);
-	} catch (err) {
-		// The Points column may not exist yet; points are derived from Rank anyway.
-		if (!String(err).includes("UNKNOWN_FIELD_NAME") || !String(err).includes("Points")) throw err;
-		await createRecords<VoteFields>(
-			TABLES.votes,
-			rows.map((row) => {
-				const rest = { ...row };
-				delete rest.Points;
-				return rest;
-			}),
-		);
-	}
+export async function castRankedVotes(voter: Voter, projects: { id: string; name: string }[]): Promise<void> {
+	const who = voterFields(voter);
+	await createVotes(
+		projects.map((p, i) => ({
+			...who,
+			Rank: i + 1,
+			Points: pointsForRank(i + 1),
+			Project: [p.id],
+		})),
+	);
 }
 
 /** Point totals across everyone's ranked picks, highest first. */
@@ -276,17 +325,8 @@ export async function finalVoteBy(email: string): Promise<string | undefined> {
 	return records.find((r) => r.fields.Round === FINAL)?.fields.Project?.[0];
 }
 
-export async function castFinalVote(voter: { email: string; name: string }, projectId: string): Promise<void> {
-	await createRecords<VoteFields>(TABLES.votes, [
-		{
-			Round: FINAL,
-			Project: [projectId],
-			"Voter Email": voter.email.toLowerCase(),
-			"Voter Name": voter.name,
-			Voter: userIds([voter.email]),
-			"Voted At": new Date().toISOString(),
-		},
-	]);
+export async function castFinalVote(voter: Voter, projectId: string): Promise<void> {
+	await createVotes([{ ...voterFields(voter), Round: FINAL, Project: [projectId] }]);
 }
 
 /** Final-round vote counts per project id. */

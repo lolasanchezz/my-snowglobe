@@ -10,6 +10,20 @@ export interface Session {
 	email?: string;
 	/** Snowglobe admin. Checked once at sign-in. */
 	admin?: boolean;
+	/**
+	 * Guest voter: typed in a name instead of signing in with Hack Club auth,
+	 * so their identity is unverified. Guests can only vote.
+	 */
+	guest?: boolean;
+}
+
+/**
+ * The key votes are stored under ("Voter Email" in Airtable): the email for
+ * signed-in people, "guest:<id>" for guests.
+ */
+export function voterKey(session: Session): string | undefined {
+	if (session.guest) return `guest:${session.id}`;
+	return session.email?.trim().toLowerCase();
 }
 
 function secret(): string {
