@@ -21,7 +21,7 @@ export default async function FinalPage() {
 		<div>
 			<h1 className="text-[clamp(2.25rem,8vw,3rem)] leading-tight">final vote</h1>
 			<p className="text-[15px] text-faded">
-				these are the top {FINALISTS} projects from everyone&apos;s ranked votes. pick your one favorite!
+				these are the top {FINALISTS} projects. pick your one favorite!
 			</p>
 		</div>
 	);
@@ -61,7 +61,7 @@ export default async function FinalPage() {
 			{heading}
 			{!open && (
 				<p className="text-[15px] text-faded">
-					admin preview: opens {openAt ? formatPacific(openAt) : "soon"}. the top {FINALISTS} can still change until then.
+					admin preview: opens {openAt ? formatPacific(openAt) : "soon"}. 
 				</p>
 			)}
 			{top.length === 0 ? (

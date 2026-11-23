@@ -306,14 +306,20 @@ export async function rankedResults(): Promise<{ projectId: string; points: numb
 const FINAL = "final";
 export const FINALISTS = 5;
 
-/** The top projects by ranked points (ties broken by how many people picked them). */
+// The top 5, picked by organizers (hardcoded). These are the merged projects'
+// ids, i.e. the earliest submission record of each team.
+const FINALIST_IDS = [
+	"rec8SpgoH0KysQzJs", // Freeze Fit
+	"reclw2s7PYvKcYAZF", // the Freeze Feds
+	"recz8APkpGHggUUn0", // Snowfall Village
+	"rec093gIq2qa69X3s", // Fridged
+	"recA6qfviVA2RhedK", // Permafrost & Potions
+];
+
+/** The final-round projects, in FINALIST_IDS order. */
 export async function finalists(): Promise<Project[]> {
-	const [projects, results] = await Promise.all([listProjects(), rankedResults()]);
-	const byId = new Map(projects.map((p) => [p.id, p]));
-	return results
-		.sort((a, b) => b.points - a.points || b.picks - a.picks)
-		.flatMap((r) => byId.get(r.projectId) ?? [])
-		.slice(0, FINALISTS);
+	const byId = new Map((await listProjects()).map((p) => [p.id, p]));
+	return FINALIST_IDS.flatMap((id) => byId.get(id) ?? []);
 }
 
 /** The project this person picked in the final round, if they've voted. */
