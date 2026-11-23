@@ -140,10 +140,15 @@ export default function SubmitForm({
 				</label>
 				<label className="flex flex-col gap-1">
 					<span className="font-bold">
-						demo link <span className="font-normal text-faded">(optional: a live site, video…)</span>
+						demo link{" "}
+						<span className="font-normal text-faded">(live, not a video: deployed site, itch.io page or release)</span>{" "}
+						<a href="/info#deploy" target="_blank" className="font-normal text-globe-blue underline underline-offset-2">
+							how to deploy
+						</a>
 					</span>
 					<input
 						name="demoUrl"
+						required
 						type="url"
 						placeholder="https://…"
 						defaultValue={project?.demoUrl}
@@ -154,7 +159,7 @@ export default function SubmitForm({
 				<section className="mt-2 flex flex-col gap-4 border-t-2 border-dashed border-globe-blue/40 pt-4">
 					<div>
 						<h2 className="text-[22px] leading-tight text-globe-blue">additional optional questions</h2>
-						<p className="text-[15px] text-faded">only answer these if they apply to you!</p>
+						<p className="text-[15px] text-foreground">only answer these if they apply to you!</p>
 					</div>
 					{QUESTIONS.map((q) => (
 						<label key={q.key} className="flex flex-col gap-1">

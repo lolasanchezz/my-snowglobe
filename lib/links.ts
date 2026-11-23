@@ -1,9 +1,9 @@
-// The tabs along the top of every signed-in screen. "vote" only shows once
-// voting opens (see portal-nav.tsx).
+// The tabs along the top of every signed-in screen.
 export const NAV_LINKS = [
 	{ label: "info", href: "/info" },
 	{ label: "submit", href: "/submit" },
 	{ label: "vote", href: "/vote" },
+	{ label: "final vote", href: "/final" },
 ] as const;
 
 export const HELP_URL = "https://hackclub.slack.com";

@@ -1,37 +1,44 @@
 "use server";
 
 import { refresh } from "next/cache";
-import { currentAttendee } from "@/lib/attendees";
-import { VOTES_PER_PERSON, votingState } from "@/lib/event";
-import { castVotes, listProjects } from "@/lib/projects";
+import { rankedVotingOpen } from "@/lib/event";
+import { castRankedVotes, listProjects, RANKED_PICKS, rankedVotesBy } from "@/lib/projects";
 import { getSession } from "@/lib/session";
 
-export interface VoteState {
+export interface RankState {
 	ok?: boolean;
 	error?: string;
 }
 
-export async function vote(_prev: VoteState, form: FormData): Promise<VoteState> {
+export async function rankVote(_prev: RankState, form: FormData): Promise<RankState> {
 	const session = await getSession();
-	const me = session && currentAttendee(session);
-	if (!me) return { error: "you need to be signed in as a snowglobe attendee to vote." };
-	if (votingState() !== "open") return { error: "voting isn't open right now." };
+	if (!session?.email) return { error: "you need to be signed in to vote." };
+	const email = session.email.toLowerCase();
+	if (!rankedVotingOpen()) return { error: "ranked voting is closed. head to the final vote!" };
 
+	// Form order is rank order (#1 first).
 	const picked = [...new Set(form.getAll("project").map(String))];
-	if (picked.length === 0) return { error: "pick at least one project." };
-	if (picked.length > VOTES_PER_PERSON) return { error: `you only get ${VOTES_PER_PERSON} votes!` };
+	if (picked.length > RANKED_PICKS) return { error: `you can only rank ${RANKED_PICKS} projects.` };
 
 	try {
-		const projects = new Map((await listProjects()).map((p) => [p.id, p]));
+		// Picks are final: once saved, they can't be changed.
+		if ((await rankedVotesBy(session.email!)).recordIds.length > 0)
+			return { error: "you've already submitted your picks. they're locked in." };
+		// No voting for your own project.
+		const all = (await listProjects()).filter((p) => !p.teamEmails.includes(email));
+		const needed = Math.min(RANKED_PICKS, all.length);
+		if (picked.length < needed) return { error: `rank ${needed} projects before submitting.` };
+		const projects = new Map(all.map((p) => [p.id, p]));
+		const ranked = [];
 		for (const id of picked) {
 			const project = projects.get(id);
-			if (!project) return { error: "one of those projects doesn't exist anymore. reload and try again." };
-			if (project.teamEmails.includes(me.email.toLowerCase())) return { error: "no voting for your own project :)" };
+			if (!project) return { error: "one of those projects isn't available (or it's yours). reload and try again." };
+			ranked.push({ id, name: project.name });
 		}
-		await castVotes({ email: me.email, name: me.name }, picked);
+		await castRankedVotes({ email: session.email!, name: session.name }, ranked);
 	} catch (err) {
-		console.error("voting failed", err);
-		return { error: "couldn't save your votes, sorry! try again, or ping an organizer." };
+		console.error("ranked voting failed", err);
+		return { error: "couldn't save your picks, sorry! try again, or ping an organizer." };
 	}
 
 	refresh();

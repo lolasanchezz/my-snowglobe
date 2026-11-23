@@ -64,7 +64,7 @@ const GITHUB: { title: string; body: React.ReactNode }[] = [
 		title: "it's public",
 		body: (
 			<>
-				open the repo link in a private window while logged out. if you see a 404, it&apos;s still private: go to
+				open the repo link in an incognito window while logged out. if you see a 404, it&apos;s still incognito: go to
 				settings → general → change visibility.
 			</>
 		),
@@ -78,15 +78,7 @@ const GITHUB: { title: string; body: React.ReactNode }[] = [
 			</>
 		),
 	},
-	{
-		title: "commit as you go",
-		body: (
-			<>
-				small commits with real messages (&ldquo;add map view&rdquo;, not &ldquo;stuff&rdquo;) all weekend. your history
-				should show the project being built here, not one giant &ldquo;final&rdquo; upload on sunday.
-			</>
-		),
-	},
+
 	{
 		title: "everyone commits",
 		body: <>each teammate pushes from their own GitHub account, so it&apos;s clear who built what.</>,
@@ -140,6 +132,70 @@ const README: React.ReactNode[] = [
 	<>your team, with GitHub handles.</>,
 	<>any template, starter or tutorial you built on.</>,
 ];
+
+const VERCEL_STEPS: React.ReactNode[] = [
+	<>push all your code to GitHub.</>,
+	<>
+		go to <Ext href="https://vercel.com/signup">vercel.com</Ext> and sign up with your GitHub account (the free{" "}
+		<b>Hobby</b> plan).
+	</>,
+	<>
+		click <b>Add New… → Project</b> and <b>Import</b> your repo.
+	</>,
+	<>
+		Vercel detects most setups on its own (Next.js, Vite, React, plain HTML). plain HTML with no build step? leave the
+		build command empty.
+	</>,
+	<>
+		need API keys? add them under <b>Environment Variables</b> on that screen, never in your code.
+	</>,
+	<>
+		click <b>Deploy</b>. your demo link is <code className="text-[14px]">your-project.vercel.app</code>, and every push
+		to main redeploys it.
+	</>,
+];
+
+const PAGES_STEPS: React.ReactNode[] = [
+	<>
+		GitHub Pages only hosts static sites (HTML, CSS, JS, or a built Vite/React app). no servers, and anything in your
+		code is public, so no secret API keys. need a backend? use Vercel.
+	</>,
+	<>
+		<b>plain HTML:</b> put <code className="text-[14px]">index.html</code> at the top of your repo, then go to
+		<b>Settings → Pages</b> → deploy from a branch → <b>main</b>, folder <code className="text-[14px]">/ (root)</code> →
+		save.
+	</>,
+	<>
+		<b>Vite / React:</b> in <code className="text-[14px]">vite.config</code> set{" "}
+		<code className="text-[14px]">base: &quot;/your-repo/&quot;</code>, run
+		<code className="text-[14px]">npm install --save-dev gh-pages</code>, add a script
+		<code className="text-[14px]">&quot;deploy&quot;: &quot;vite build &amp;&amp; gh-pages -d dist&quot;</code>, and run
+		<code className="text-[14px]">npm run deploy</code>. then in <b>Settings → Pages</b>, deploy from the{" "}
+		<b>gh-pages</b> branch.
+	</>,
+	<>
+		after a minute it&apos;s live at <code className="text-[14px]">your-username.github.io/your-repo</code>. open it in
+		a private window to check.
+	</>,
+];
+
+function Guide({ title, steps }: { title: string; steps: React.ReactNode[] }) {
+	return (
+		<details className="group border-2 border-globe-blue bg-white">
+			<summary className="flex cursor-pointer list-none items-center gap-2 px-4 py-2.5 text-globe-blue hover:bg-globe-blue/[0.06] [&::-webkit-details-marker]:hidden">
+				<span aria-hidden className="transition-transform group-open:rotate-90">
+					▸
+				</span>
+				{title}
+			</summary>
+			<ol className="flex list-decimal flex-col gap-1.5 border-t-2 border-globe-blue px-4 py-4 pl-9">
+				{steps.map((step, i) => (
+					<li key={i}>{step}</li>
+				))}
+			</ol>
+		</details>
+	);
+}
 
 const GODOT_STEPS: React.ReactNode[] = [
 	<>
@@ -352,6 +408,11 @@ export default function ShippingExplainer({
 						</div>
 					))}
 				</dl>
+				<div id="deploy" className="flex scroll-mt-4 flex-col gap-2">
+					<p className="text-globe-blue">how to deploy a website:</p>
+					<Guide title="deploy to Vercel" steps={VERCEL_STEPS} />
+					<Guide title="deploy to GitHub Pages" steps={PAGES_STEPS} />
+				</div>
 				<div className="bg-globe-blue/[0.06] p-5">
 					<p className="text-globe-blue">deploying a Godot game to itch.io:</p>
 					<ol className="mt-2 flex list-decimal flex-col gap-1.5 pl-5">

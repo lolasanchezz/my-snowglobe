@@ -23,6 +23,27 @@ function cleanUrl(value: FormDataEntryValue | null): string | null {
 	}
 }
 
+// Demo links have to be something people can use, not a recording.
+const VIDEO_HOSTS = [
+	"youtube.com",
+	"youtu.be",
+	"vimeo.com",
+	"loom.com",
+	"tiktok.com",
+	"streamable.com",
+	"drive.google.com",
+	"photos.google.com",
+	"dropbox.com",
+	"instagram.com",
+];
+
+function isVideoLink(url: string): boolean {
+	const { hostname, pathname } = new URL(url);
+	const host = hostname.replace(/^www\./, "");
+	if (VIDEO_HOSTS.some((h) => host === h || host.endsWith(`.${h}`))) return true;
+	return /\.(mp4|mov|webm|mkv|avi|gif)$/i.test(pathname);
+}
+
 export async function submitProject(_prev: SubmitState, form: FormData): Promise<SubmitState> {
 	const session = await getSession();
 	const me = session && currentAttendee(session);
@@ -39,6 +60,9 @@ export async function submitProject(_prev: SubmitState, form: FormData): Promise
 	if (!description || description.length > 3000) return { error: "add a description (3000 characters max)." };
 	if (codeUrl === null || demoUrl === null) return { error: "those links don't look right. use full https:// urls." };
 	if (!codeUrl) return { error: "add a link to your code (github, etc)." };
+	if (!demoUrl) return { error: "add a link to your live demo." };
+	if (isVideoLink(demoUrl))
+		return { error: "your demo has to be live, not a video. link to the deployed site, itch.io page or release." };
 	const hours = Number(String(form.get("hours") ?? "").trim());
 	if (!Number.isFinite(hours) || hours <= 0 || hours > 100)
 		return { error: "how many hours did you spend on this? (a number between 0 and 100)" };

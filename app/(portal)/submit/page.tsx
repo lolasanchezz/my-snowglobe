@@ -40,7 +40,7 @@ export default async function SubmitPage() {
 					{project?.name ? "your project" : "submit your project"}
 				</h1>
 				<p className="text-[15px] text-faded">
-					{open ? `due ${formatPacific(submissionsCloseAt())}.` : "submissions are closed. go vote!"}
+					{open ? `due ${formatPacific(submissionsCloseAt())}.` : "submissions are closed."}
 				</p>
 			</div>
 			<div className="border-2 border-globe-blue bg-white p-4 text-[16px] shadow-[4px_4px_0_var(--color-globe-blue)]">

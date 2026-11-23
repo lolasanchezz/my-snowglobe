@@ -1,6 +1,5 @@
-// Key times for the event. Defaults (Sunday Nov 22, PT):
-// submissions due 4:00 pm, voting through demos until 6:00 pm. Each can be
-// moved without a code change by setting the env var to an ISO timestamp.
+// Submission deadline: Sunday Nov 22, 5:00 pm PT by default. Move it without a
+// code change by setting SUBMISSIONS_CLOSE_AT to an ISO timestamp.
 function time(envVar: string, fallback: string): Date {
 	const value = process.env[envVar];
 	const date = new Date(value || fallback);
@@ -8,30 +7,33 @@ function time(envVar: string, fallback: string): Date {
 }
 
 export function submissionsCloseAt(): Date {
-	return time("SUBMISSIONS_CLOSE_AT", "2026-11-22T16:00:00-08:00");
-}
-
-export function votingOpensAt(): Date {
-	return time("VOTING_OPENS_AT", "2026-11-22T16:00:00-08:00");
-}
-
-export function votingClosesAt(): Date {
-	return time("VOTING_CLOSES_AT", "2026-11-22T18:00:00-08:00");
+	return time("SUBMISSIONS_CLOSE_AT", "2026-11-22T17:00:00-08:00");
 }
 
 export function submissionsOpen(now = new Date()): boolean {
 	return now < submissionsCloseAt();
 }
 
-export type VotingState = "not-yet" | "open" | "closed";
-
-export function votingState(now = new Date()): VotingState {
-	if (now < votingOpensAt()) return "not-yet";
-	return now < votingClosesAt() ? "open" : "closed";
+/**
+ * When the final round opens (pick one favorite from the top 5). Set
+ * FINALS_OPEN_AT to an ISO timestamp: at that moment ranked voting closes, so
+ * the top 5 stops changing, and the final vote opens. Unset, both stay open.
+ */
+export function finalsOpenAt(): Date | null {
+	const value = process.env.FINALS_OPEN_AT;
+	const date = value ? new Date(value) : null;
+	return date && !Number.isNaN(date.getTime()) ? date : null;
 }
 
-/** How many projects each attendee can vote for. */
-export const VOTES_PER_PERSON = 3;
+export function finalsOpen(now = new Date()): boolean {
+	const at = finalsOpenAt();
+	return !at || now >= at;
+}
+
+export function rankedVotingOpen(now = new Date()): boolean {
+	const at = finalsOpenAt();
+	return !at || now < at;
+}
 
 export function formatPacific(date: Date): string {
 	return date
